@@ -1,0 +1,16 @@
+- name: first play
+  hosts: all
+  tasks:
+    - name: Upgrade System
+      become: yes
+      apt:
+        update_cache: yes
+        upgrade: yes
+        
+    - name: get user info
+      register: result
+      shell: id
+
+    - name: show user info
+      debug:
+        var: result

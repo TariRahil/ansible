@@ -1,0 +1,13 @@
+- name: first play
+  hosts: all
+  tasks:
+    - name: Run command
+      register: result
+      environment:
+        devops: salam
+      shell:
+        cmd: env
+      
+    - name: show result
+      debug:
+        var: result

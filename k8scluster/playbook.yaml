@@ -1,0 +1,50 @@
+- name: install docker
+  hosts: all
+  vars:
+    docker_requirements:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    docker_packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      
+  tasks:
+    - name: upgrade system
+      become: yes
+      apt:
+        update_cache: yes
+        upgrade: yes
+        
+    - name: check docker installation
+      ignore_errors: yes
+      register: result
+      shell: which docker
+      
+    - name: install docker requirements
+      when: result.rc != 0
+      become: yes
+      apt:
+        name: "{{ docker_requirements }}"
+        state: present
+        
+    - name: add docker repository apt key
+      when: result.rc != 0
+      become: yes
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+         
+    - name: add docker repository
+      when: result.rc != 0
+      become: yes
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_facts.lsb.codename }} stable
+         
+    - name: install docker
+      when: result.rc != 0
+      become: yes
+      apt:
+        name: "{{ docker_packages }}"
+        state: present
